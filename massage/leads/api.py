@@ -74,5 +74,5 @@ def sign_up_to_massage_session(request):
     massageSession.save()
     send_template_email('Запрос на запись', 'emails/order.html',
                         {"tel": tel, "name": name, "description": description, "date": date.strftime("%d.%m.%y  %H:%M")},
-                        ["smile.mark.cool@gmail.com"])
+                        [], True)
     return Response()
