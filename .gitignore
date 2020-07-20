@@ -1,0 +1,13 @@
+env/*
+.idea/*
+massage/media/*
+*.pyc
+massage/*/migrations/*
+massage/*/node_modules/*
+massage/*/__pycache__/*
+massage/massage/local_settings.py
+massage/static/admin/*
+massage/static/client_front/*
+massage/static/froala_editor/*
+massage/static/rest_framework/*
+

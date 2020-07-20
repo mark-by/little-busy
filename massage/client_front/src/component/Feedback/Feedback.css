@@ -1,0 +1,14 @@
+.feedback-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.feedback-card__date {
+    margin-top: 5px;
+    display: flex;
+    justify-content: flex-end;
+    color: gray;
+}
