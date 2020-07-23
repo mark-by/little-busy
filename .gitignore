@@ -2,6 +2,7 @@ env/*
 .idea/*
 massage/media/*
 *.pyc
+massage/client_front/.idea/*
 massage/*/migrations/*
 massage/*/node_modules/*
 massage/*/__pycache__/*

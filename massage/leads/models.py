@@ -2,7 +2,10 @@ from django.db import models
 from froala_editor.fields import FroalaField
 from django.utils import timezone
 from datetime import timedelta
+from django.conf import settings
 from .utils import *
+
+import hashlib
 
 
 class Article(models.Model):
@@ -72,9 +75,15 @@ class Client(models.Model):
     name = models.CharField(max_length=32, verbose_name="Имя")
     tel = models.CharField(max_length=15, verbose_name="Телефон")
     description = models.TextField(blank=True, null=True, verbose_name="Комментарий")
+    token = models.CharField(max_length=40, verbose_name="Токен", null=True, blank=True)
 
     def __str__(self):
         return self.name
+    
+    def take_token(self):
+        self.token = hashlib.sha1(f"{self.name}{self.pk}".encode()).hexdigest()
+        self.description += f"\n{settings.HOST}/client-schedule/{self.token}"
+        self.save()
 
     class Meta:
         ordering = ['name']
@@ -82,23 +91,8 @@ class Client(models.Model):
         verbose_name_plural = "Клиенты"
 
 
-class Kind(models.Model):
-    title = models.CharField(max_length=32, verbose_name="Название")
-    time = models.TimeField(verbose_name="Продолжительность")
-
-    def __str__(self):
-        return self.title
-
-    class Meta:
-        ordering = ['title']
-        verbose_name = "Вид массажа"
-        verbose_name_plural = "Виды массажа"
-
-
 class MassageSession(models.Model):
-    name = models.CharField(max_length=32, verbose_name="Имя клиента", blank=True)
-    client = models.ForeignKey(Client, on_delete=models.SET_NULL, blank=True, null=True, verbose_name="Клиент")
-    kind = models.ForeignKey(Kind, on_delete=models.SET_NULL, blank=True, null=True, verbose_name="Вид массажа")
+    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, verbose_name="Клиент")
     start_time = models.DateTimeField(default=timezone.now, verbose_name="Начало")
     end_time = models.TimeField(default=timezone.now, verbose_name="Конец")
     description = models.TextField(blank=True, null=True, verbose_name="Комментарий")
@@ -106,17 +100,10 @@ class MassageSession(models.Model):
     constant = models.BooleanField(default=False, verbose_name="Постоянна")
 
     def __str__(self):
-        return f"Сеанс c {self.name}"
-
-    def save(self, *args, **kwargs):
-        if self.client:
-            self.name = self.client.name
-        if self.kind:
-            self.end_time = (self.start_time + timedelta(hours=self.kind.time.hour, minutes=self.kind.time.minute)).time().strftime("%H:%M:S")
-        super().save(*args, **kwargs)
+        return f"Сеанс c {self.client}"
 
     class Meta:
-        ordering = ['start_time']
+        ordering = ['-start_time']
         verbose_name = "Cеанс"
         verbose_name_plural = "Сеансы"
 

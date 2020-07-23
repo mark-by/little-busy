@@ -25,25 +25,28 @@ class AvatarAdmin(admin.ModelAdmin):
 
 @admin.register(MassageSession)
 class MassageSessionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'start_time', 'end_time')
-    autocomplete_fields = ['client', 'kind']
+    list_display = ('client', 'start_time', 'end_time')
+    autocomplete_fields = ['client']
     list_filter = ('active', 'constant')
 
 
 class MassageSessionInline(admin.TabularInline):
     model = MassageSession
-    autocomplete_fields = ['kind']
-    exclude = ['name']
     extra = 0
+
+
+def take_token(modelAdmin, request, queryset):
+    for client in queryset:
+        client.take_token()
+
+
+take_token.short_description = "Выпустить ссылку"
 
 
 @admin.register(Client)
 class ClientAdmin(admin.ModelAdmin):
+    actions = [take_token]
+    readonly_fields = ['token']
     list_display = ('name', 'tel')
-    inlines = (MassageSessionInline, )
+    inlines = (MassageSessionInline,)
     search_fields = ['name']
-
-
-@admin.register(Kind)
-class KindAdmin(admin.ModelAdmin):
-    search_fields = ['title']

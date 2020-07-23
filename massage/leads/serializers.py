@@ -5,7 +5,7 @@ from .models import *
 class CertificateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Certificate
-        fields = ('image', )
+        fields = ('image',)
 
 
 class FeedbackSerializer(serializers.ModelSerializer):
@@ -23,6 +23,36 @@ class ShortEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = MassageSession
         fields = ('start_time', 'end_time')
+
+
+class ShortClientSerializer(serializers.ModelSerializer):
+    text = serializers.SerializerMethodField('get_name')
+
+    def get_name(self, obj):
+        return obj.name
+
+    class Meta:
+        model = Client
+        fields = ('id', 'text')
+
+
+class EventSerializer(serializers.ModelSerializer):
+    start_time = serializers.DateTimeField(format="%H:%M")
+    end_time = serializers.TimeField(format="%H:%M")
+    client = ShortClientSerializer()
+
+    class Meta:
+        model = MassageSession
+        fields = '__all__'
+
+
+class ValidateEventSerializer(serializers.ModelSerializer):
+    start_time = serializers.DateTimeField(format="%H:%M")
+    end_time = serializers.TimeField(format="%H:%M")
+
+    class Meta:
+        model = MassageSession
+        fields = '__all__'
 
 
 class ArticleSerializer(serializers.ModelSerializer):

@@ -7,14 +7,6 @@ import {showMessage} from "../Common/Message/redux/actions";
 import {msgTypeFail, msgTypeNeutral, msgTypeSuccess} from "../Common/Message/types";
 import {useDispatch} from "react-redux";
 
-function normalizeNumber(num) {
-    if (num < 10) {
-        return "0" + num
-    } else {
-        return num + ""
-    }
-}
-
 export default function Form({close, date}) {
     const [times, setTimes] = React.useState([]);
     const [inputData, setInputData] = React.useState({time: "8:00"});
@@ -51,6 +43,13 @@ export default function Form({close, date}) {
         })
     }
 
+    function normalizeNumber(num) {
+        if (num < 10) {
+            return "0" + num
+        } else {
+            return num + ""
+        }
+    }
 
     return (
        <div className="wrapper" onClick={e => {if (e.target.className === "wrapper") close()}}>

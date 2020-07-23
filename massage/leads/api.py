@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Q
+from django.contrib.auth.decorators import login_required
 from django.utils.datastructures import MultiValueDictKeyError
 from datetime import datetime
 
@@ -30,7 +31,7 @@ def get_events(request):
         weekday = datetime(year=year, month=month, day=day).weekday()
         events = MassageSession.objects.filter(
             (Q(start_time__year=year) & Q(start_time__month=month) & Q(start_time__day=day) & Q(
-                active=True)) | (Q(start_time__week_day=(weekday + 2)%7) & Q(constant=True)))
+                active=True)) | (Q(start_time__week_day=(weekday + 2) % 7) & Q(constant=True)))
 
         return Response(ShortEventSerializer(events, many=True).data)
     except (MultiValueDictKeyError, ValueError):
@@ -73,6 +74,80 @@ def sign_up_to_massage_session(request):
     massageSession.active = False
     massageSession.save()
     send_template_email('Запрос на запись', 'emails/order.html',
-                        {"tel": tel, "name": name, "description": description, "date": date.strftime("%d.%m.%y  %H:%M")},
+                        {"tel": tel, "name": name, "description": description,
+                         "date": date.strftime("%d.%m.%y  %H:%M")},
                         [], True)
+    return Response()
+
+
+@api_view(["GET"])
+@login_required(login_url='admin/login')
+def get_events_for_month(request):
+    try:
+        year = int(request.GET['year'])
+        month = int(request.GET['month'])
+        now = datetime.now()
+        now_init = datetime(year=now.year, month=now.month, day=now.day)
+        events = MassageSession.objects.filter(
+            (Q(start_time__year=year) & Q(start_time__month=month) & Q(start_time__gte=now_init)) | Q(constant=True))
+        events_by_day = {}
+        for event in events:
+            date = event.start_time.strftime("%d.%m.%Y")
+            if date in events_by_day.keys():
+                events_by_day[date].append(event)
+            else:
+                events_by_day[date] = [event]
+        for key in events_by_day.keys():
+            events_by_day[key] = EventSerializer(events_by_day[key], many=True).data
+        return Response(events_by_day)
+    except (MultiValueDictKeyError, ValueError):
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+def str_time_to_min(time):
+    arr_time = [int(num) for num in time.split(':')]
+    return arr_time[0] * 60 + arr_time[1]
+
+def __save_event(request, new):
+    data = request.data
+    errors = {}
+    if not data['client']:
+        errors['client'] = ["Необходимо выбрать клиента"]
+    if str_time_to_min(data['end_time']) < str_time_to_min(data['start_time']):
+        errors['end_time'] = ["Конечное время должно быть больше начального"]
+    if errors:
+        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+    data['start_time'] = f"{data['date']} {data['start_time']}"
+    if new:
+        serialzer = ValidateEventSerializer(data=data)
+    else:
+        event = MassageSession.objects.get(pk=request.data['id'])
+        serialzer = ValidateEventSerializer(event, data=data)
+    serialzer.is_valid()
+    if serialzer.is_valid():
+        serialzer.save()
+        if new:
+            return Response({"id": serialzer.instance.id}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(status=status.HTTP_200_OK)
+    else:
+        return Response(serialzer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+@login_required
+def save_event(request):
+    return __save_event(request, False)
+
+
+@api_view(["POST"])
+@login_required
+def create_event(request):
+    return __save_event(request, True)
+
+
+@api_view(["POST"])
+def delete_event(request):
+    event = MassageSession.objects.get(pk=request.data["id"])
+    event.delete()
     return Response()

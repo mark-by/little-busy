@@ -3,7 +3,11 @@ from django.urls import path, include, re_path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('manage', include('manage_front.urls')),
     path('froala_editor/', include('froala_editor.urls')),
     path('api/', include('leads.urls')),
-    re_path('^.*', include('client_front.urls')),
+    path('', include('client_front.urls')),
+    path('certificate', include('client_front.urls')),
+    path('schedule', include('client_front.urls')),
+    path('feedback', include('client_front.urls')),
 ]
