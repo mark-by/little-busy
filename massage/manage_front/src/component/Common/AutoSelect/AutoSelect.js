@@ -57,12 +57,14 @@ export default function AutoSelect({name, setData, title, api, width, defaultVal
             </div>
             {isOpen && <div className="options">
                 <input type="text" onChange={searchInputHandler} placeholder="Введите для поиска"/>
-                {(!suggestions || !suggestions.length) && <div className="option">Нет предложений</div>}
-                {suggestions && suggestions.map((option, idx) => {
-                    return <div className="option" key={idx} onClick={() => handleSelectOption(option)}>
-                        <p>{option.text}</p>
-                    </div>
-                })}
+                <div style={{maxHeight: "200px", overflowY: "scroll"}}>
+                    {(!suggestions || !suggestions.length) && <div className="option">Нет предложений</div>}
+                    {suggestions && suggestions.map((option, idx) => {
+                        return <div className="option" key={idx} onClick={() => handleSelectOption(option)}>
+                            <p>{option.text}</p>
+                        </div>
+                    })}
+                </div>
             </div>}
         </div>
     )

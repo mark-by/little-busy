@@ -82,7 +82,7 @@ export default function EventForm({close, event, day, month, year, scheduleRef})
                 ))}
 
                 <div className="bottom-control">
-                    <div className="button red-button" onClick={() => deleteEventHandler(event.id, event.constant)}>Удалить</div>
+                    <div className={"button" + (event.new ? "" : " red-button")} style={{background: event.new ? "#cacaca" : ""}} onClick={() => event.new ? {} : deleteEventHandler(event.id, event.constant)}>Удалить</div>
                     <Submit>Сохранить</Submit>
                 </div>
             </form>
