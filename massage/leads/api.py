@@ -4,7 +4,7 @@ from rest_framework import status
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.utils.datastructures import MultiValueDictKeyError
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from .models import *
 from .serializers import *
@@ -61,20 +61,27 @@ def sign_up_to_massage_session(request):
                         minute=int(time[1]))
         tel = request.data['tel']
         name = request.data['name']
-        description = request.data['description']
+        init_description = ''
+        try:
+            init_description = request.data['description']
+        except KeyError:
+            pass
+        description = init_description +  f"\nИмя: {name}" + f"\nТелефон: {tel}"
         if len(tel) < 11:
-            return Response({"name": "tel", "error": "Неправильный номер"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"name": "tel", "error": "Неправильный номер"},
+                            status=status.HTTP_400_BAD_REQUEST)
         if not name:
-            return Response({"name": "name", "error": "Необходимо указать имя"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"name": "name", "error": "Необходимо указать имя"},
+                            status=status.HTTP_400_BAD_REQUEST)
         massageSession = MassageSession(start_time=date,
-                                        name=name,
-                                        description=description + f"\nТелефон: {tel}")
+                                        end_time=(date + timedelta(hours=1)).time(),
+                                        description=description)
     except (KeyError, TypeError):
         return Response(status=status.HTTP_400_BAD_REQUEST)
     massageSession.active = False
     massageSession.save()
     send_template_email('Запрос на запись', 'emails/order.html',
-                        {"tel": tel, "name": name, "description": description,
+                        {"tel": tel, "name": name, "description": init_description,
                          "date": date.strftime("%d.%m.%y  %H:%M")},
                         [], True)
     return Response()
