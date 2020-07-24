@@ -4,6 +4,7 @@ from rest_framework import status
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.utils.datastructures import MultiValueDictKeyError
+from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime, timedelta
 
 from .models import *
@@ -66,7 +67,7 @@ def sign_up_to_massage_session(request):
             init_description = request.data['description']
         except KeyError:
             pass
-        description = init_description +  f"\nИмя: {name}" + f"\nТелефон: {tel}"
+        description = init_description + f"\nИмя: {name}" + f"\nТелефон: {tel}"
         if len(tel) < 11:
             return Response({"name": "tel", "error": "Неправильный номер"},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -87,16 +88,52 @@ def sign_up_to_massage_session(request):
     return Response()
 
 
-@api_view(["GET"])
-@login_required(login_url='admin/login')
-def get_events_for_month(request):
+@api_view(['POST'])
+def create_request_event(request):
+    try:
+        token = request.data['token']
+        client = Client.objects.get(token=token)
+        try:
+            description = request.data['description']
+        except KeyError:
+            description = None
+        date = f"{request.data['date']} {request.data['start_time']}"
+        end = (datetime.strptime(date, '%Y-%m-%d %H:%M') + timedelta(hours=1)).time()
+        massage_session = MassageSession(client=client, start_time=date, end_time=end, description=description, active=False)
+        massage_session.save()
+        send_template_email('Запрос на запись', 'emails/order_by_client.html',
+                            {"client": client, "description": description,
+                             "date": date},
+                            [], True)
+        return Response(status=status.HTTP_201_CREATED)
+    except (KeyError, ObjectDoesNotExist):
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+def __get_events_for_month(request, admin=True):
     try:
         year = int(request.GET['year'])
         month = int(request.GET['month'])
         now = datetime.now()
         now_init = datetime(year=now.year, month=now.month, day=now.day)
-        events = MassageSession.objects.filter(
-            (Q(start_time__year=year) & Q(start_time__month=month) & Q(start_time__gte=now_init)) | Q(constant=True))
+        context = {}
+        if admin:
+            serializer = EventSerializer
+            events = MassageSession.objects.filter(
+                (Q(start_time__year=year) & Q(start_time__month=month) & Q(start_time__gte=now_init)) | Q(
+                    constant=True))
+        else:
+            serializer = EventClientSerializer
+            token = request.GET['token']
+            try:
+                client = Client.objects.get(token=token)
+            except ObjectDoesNotExist:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            context['client'] = client
+            events = MassageSession.objects.filter(
+                (((Q(start_time__year=year) & Q(start_time__month=month) & Q(start_time__gte=now_init)) | Q(
+                    constant=True)) & Q(active=True)) | Q(client=client))
+
         events_by_day = {}
         for event in events:
             date = event.start_time.strftime("%d.%m.%Y")
@@ -105,14 +142,27 @@ def get_events_for_month(request):
             else:
                 events_by_day[date] = [event]
         for key in events_by_day.keys():
-            events_by_day[key] = EventSerializer(events_by_day[key], many=True).data
+            events_by_day[key] = serializer(events_by_day[key], many=True, context=context).data
         return Response(events_by_day)
     except (MultiValueDictKeyError, ValueError):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
+
+@api_view(["GET"])
+@login_required(login_url='admin/login')
+def get_events_for_month(request):
+    return __get_events_for_month(request)
+
+
+@api_view(["GET"])
+def get_client_events_for_month(request):
+    return __get_events_for_month(request, False)
+
+
 def str_time_to_min(time):
     arr_time = [int(num) for num in time.split(':')]
     return arr_time[0] * 60 + arr_time[1]
+
 
 def __save_event(request, new):
     data = request.data

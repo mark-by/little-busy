@@ -46,6 +46,19 @@ class EventSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class EventClientSerializer(serializers.ModelSerializer):
+    start_time = serializers.DateTimeField(format="%H:%M")
+    end_time = serializers.TimeField(format="%H:%M")
+    own = serializers.SerializerMethodField('set_own')
+
+    class Meta:
+        model = MassageSession
+        fields = ['start_time', 'end_time', 'own', 'active']
+
+    def set_own(self, obj):
+        return True if obj.client == self.context['client'] else False
+
+
 class ValidateEventSerializer(serializers.ModelSerializer):
     start_time = serializers.DateTimeField(format="%H:%M")
     end_time = serializers.TimeField(format="%H:%M")

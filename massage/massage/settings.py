@@ -14,6 +14,7 @@ INSTALLED_APPS = [
     'froala_editor',
     'rest_framework',
     'client_front',
+    'client_schedule_front',
     'manage_front',
     'leads'
 ]

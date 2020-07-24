@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Заказ</title>
+</head>
+<body>
+<h2>Запрос на запись</h2>
+<p><strong>Кто:</strong> {{ client.name }}</p>
+<p><strong>Телефон:</strong> {{ client.tel }}</p>
+{% if description %}
+    <p><strong>Комментарий:</strong> {{ description }}</p>
+{% endif %}
+<p><strong>Дата и время:</strong> {{ date }}</p>
+</body>
+</html>
