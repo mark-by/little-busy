@@ -53,7 +53,7 @@ class EventClientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MassageSession
-        fields = ['start_time', 'end_time', 'own', 'active']
+        fields = ['start_time', 'end_time', 'own', 'active', 'constant']
 
     def set_own(self, obj):
         return True if obj.client == self.context['client'] else False
