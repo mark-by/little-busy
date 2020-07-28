@@ -73,13 +73,13 @@ class Avatar(models.Model):
 
 class Client(models.Model):
     name = models.CharField(max_length=32, verbose_name="Имя")
-    tel = models.CharField(max_length=15, verbose_name="Телефон")
+    tel = models.CharField(max_length=15, verbose_name="Телефон", blank=True, null=True)
     description = models.TextField(blank=True, null=True, verbose_name="Комментарий")
     token = models.CharField(max_length=40, verbose_name="Токен", null=True, blank=True)
 
     def __str__(self):
         return self.name
-    
+
     def take_token(self):
         self.token = hashlib.sha1(f"{self.name}{self.pk}".encode()).hexdigest()
         self.description += f"\n{settings.HOST}/client-schedule/{self.token}"
