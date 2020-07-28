@@ -1,6 +1,8 @@
 env/*
+bin/*
 .idea/*
 massage/media/*
+massage/gunicorn_config.py
 *.pyc
 massage/client_front/.idea/*
 massage/client_schedule_front/.idea/*
