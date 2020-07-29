@@ -12,6 +12,7 @@
 - DATABASES
 - HOST
 - EMAIL settings
+- FROM_EMAIL - почта для оповещений
 
 ### Структура
 **Фронтенд** - SPA (React + Redux)  
