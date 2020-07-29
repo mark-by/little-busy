@@ -6,6 +6,7 @@ from django.http import Http404
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.conf import settings
 
 import re
 
@@ -44,7 +45,7 @@ def clear_froala(text):
 def send_template_email(subject, template, context, to, notify=False):
     html_message = render_to_string(template, context)
     plain_message = strip_tags(html_message)
-    from_email = 'i@irina-massage.ru'
+    from_email = settings.FROM_EMAIL
     recipients = to
     if notify:
         recipients.append(from_email)
