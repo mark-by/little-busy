@@ -1,7 +1,7 @@
 import axios from 'axios'
 import {apiEvents} from "../backend/api";
 import {
-    typeAddEvent, typeChangeEvent, typeDeleteEvent,
+    typeAddEvent, typeDeleteEvent,
     typeSetEvents,
     typeToggleLoading
 } from "./types";
@@ -17,7 +17,7 @@ export const fetchEvents = (year, month, ref) => {
     }
 }
 
-export const addEvent = (event, ref) => ({type: typeAddEvent, payload: {event, ref}})
+export const addEvent = (event, ref) => ({type: typeAddEvent, payload: {event: {...event, new: false}, ref}})
 
 export const deleteEvent = (year, month, day, id, constant) => ({type: typeDeleteEvent, payload: {year, month, day, id, constant}})
 
