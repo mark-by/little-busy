@@ -76,6 +76,8 @@ class Client(models.Model):
     tel = models.CharField(max_length=15, verbose_name="Телефон", blank=True, null=True)
     description = models.TextField(blank=True, null=True, verbose_name="Комментарий")
     token = models.CharField(max_length=40, verbose_name="Токен", null=True, blank=True)
+    email = models.EmailField(blank=True, null=True, verbose_name="E-mail")
+    notify = models.BooleanField(default=False, verbose_name="Оповещать")
 
     def __str__(self):
         return self.name

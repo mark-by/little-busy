@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.datastructures import MultiValueDictKeyError
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime, timedelta
+import pytz
 
 from .models import *
 from .serializers import *
@@ -81,6 +82,7 @@ def sign_up_to_massage_session(request):
         return Response(status=status.HTTP_400_BAD_REQUEST)
     massageSession.active = False
     massageSession.save()
+    date = date.astimezone(pytz.timezone(timezone.get_default_timezone_name()))
     send_template_email('Запрос на запись', 'emails/order.html',
                         {"tel": tel, "name": name, "description": init_description,
                          "date": date.strftime("%d.%m.%y  %H:%M")},
