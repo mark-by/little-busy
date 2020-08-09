@@ -15,8 +15,10 @@ class Command(BaseCommand):
         tomorrow = today + timezone.timedelta(days=1)
         after_tomorrow = today + timezone.timedelta(days=2)
         sessions = MassageSession.objects.filter(
-            Q(active=True) & ((Q(constant=True) & Q(start_time__week_day=(tomorrow.weekday() + 2) % 7)) | (Q(start_time__gt=today) & Q(start_time__lt=after_tomorrow))))
+            Q(active=True) & Q(client__notify=True) &
+            ((Q(constant=True) & Q(start_time__week_day=(tomorrow.weekday()+2) %7)) |
+             (Q(start_time__year=tomorrow.year) & Q(start_time__month=tomorrow.month) & Q(start_time__day=tomorrow.day))))
         for session in sessions:
-            if session.client.email and session.client.notify:
+            if session.client.email:
                 time = session.start_time.astimezone(pytz.timezone(timezone.get_default_timezone_name()))
                 send_template_email("Оповещение о массаже", "emails/notify.html", {"time": time.strftime("%H:%M")}, [session.client.email], False)
