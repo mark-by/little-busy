@@ -67,7 +67,7 @@ export default function Schedule() {
     const currYear = currYearIdx + now.getFullYear();
     const currMonth = currMonthIdx + (!currYearIdx ? now.getMonth() : 0) + 1;
     const currDay = (!(currYearIdx || currMonthIdx) ? now.getDate() : 1);
-    const days = getValidDays(daysInMonth(currYear, currMonth), currYearIdx, currMonthIdx, now.getDate())
+    const days = getValidDays(daysInMonth(currYear, currMonthIdx), currYearIdx, currMonthIdx, now.getDate())
 
     const times = [];
     for (let hour = schedule.startWorkTime[0]; hour <= schedule.stopWorkTime[0]; hour++) {
