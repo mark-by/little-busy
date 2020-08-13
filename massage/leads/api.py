@@ -133,9 +133,8 @@ def __get_events_for_month(request, admin=True):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             context['client'] = client
             events = MassageSession.objects.filter(
-                (((Q(start_time__year=year) & Q(start_time__month=month) & Q(start_time__gte=now_init)) | Q(
-                    constant=True)) & Q(active=True)) | Q(client=client))
-
+                ((Q(start_time__year=year) & Q(start_time__month=month) & Q(start_time__gte=now_init)) | Q(constant=True))
+                    & (Q(active=True) | Q(client=client)))
         events_by_day = {}
         for event in events:
             date = event.start_time.strftime("%d.%m.%Y")
