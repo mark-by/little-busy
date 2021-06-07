@@ -8,7 +8,6 @@ function App() {
     const [data, setData] = React.useState({});
 
     React.useEffect(() => {
-        console.log(data);
     }, [data])
   return (
       <>

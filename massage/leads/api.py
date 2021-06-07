@@ -165,11 +165,29 @@ def str_time_to_min(time):
     return arr_time[0] * 60 + arr_time[1]
 
 
+def __create_client(data):
+    if 'client_name' not in data.keys() or not data['client_name']:
+        return None, {'client_name': ["Необходимо указать имя клиента"]}
+    client_serializer = ClientSerializer(data={'name': data['client_name'], 'tel': getattr(data, 'client_number', None)})
+    if client_serializer.is_valid():
+        client_serializer.save()
+        return client_serializer.data['id'], None
+    return None, client_serializer.errors
+
+
 def __save_event(request, new):
     data = request.data
     errors = {}
-    if not data['client']:
-        errors['client'] = ["Необходимо выбрать клиента"]
+    if not ('new_client' in data.keys() and data['new_client']) and not data['client']:
+        errors['client'] = ["Необходимо указать клиента"]
+
+    if 'new_client' in data.keys() and data['new_client']:
+        client_id, err = __create_client(data)
+        if err is None:
+            data['client'] = client_id
+        else:
+            errors.update(err)
+
     if str_time_to_min(data['end_time']) < str_time_to_min(data['start_time']):
         errors['end_time'] = ["Конечное время должно быть больше начального"]
     if errors:
@@ -185,9 +203,9 @@ def __save_event(request, new):
     if serialzer.is_valid():
         serialzer.save()
         if new:
-            return Response({"id": serialzer.instance.id}, status=status.HTTP_201_CREATED)
+            return Response({"id": serialzer.instance.id, "client_id": data['client']}, status=status.HTTP_201_CREATED)
         else:
-            return Response(status=status.HTTP_200_OK)
+            return Response({"client_id": data['client']}, status=status.HTTP_200_OK)
     else:
         return Response(serialzer.errors, status=status.HTTP_400_BAD_REQUEST)
 

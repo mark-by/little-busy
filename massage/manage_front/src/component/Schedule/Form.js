@@ -25,8 +25,6 @@ export default function Form({close, date}) {
     function submitHandler(e) {
         e.preventDefault();
         dispatch(showMessage({value: "Пожалуйста, подождите...", type: msgTypeNeutral}));
-        console.log(date);
-        console.log(inputData);
         csrfAxios(apiSignUpToMassage, {
             year: date.currYear,
             month: date.currMonth,

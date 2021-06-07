@@ -25,6 +25,12 @@ class ShortEventSerializer(serializers.ModelSerializer):
         fields = ('start_time', 'end_time')
 
 
+class ClientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Client
+        fields = '__all__'
+
+
 class ShortClientSerializer(serializers.ModelSerializer):
     text = serializers.SerializerMethodField('get_name')
 

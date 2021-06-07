@@ -30,11 +30,16 @@ export default function EventForm({close, event, day, month, year, scheduleRef})
         }
         csrfAxios(api, inputData)
             .then(response => {
+                const clientName = inputData['new_client'] ? inputData['client_name'] : inputData.selected_client_title;
+                const clientID = response.data['client_id'];
                 if (response.status === 200) {
-                    dispatch(changeEvent(year, month, day, {...inputData, client: {id: inputData.client, text: inputData.selected_client_title}}, event.constant, scheduleRef));
+                    dispatch(changeEvent(year, month, day,
+                        {...inputData, new_client: false, client_name: "", client_number: "",
+                            client: {id: clientID, text: clientName}}, event.constant, scheduleRef));
                     close();
                 } else if (response.status === 201) {
-                    dispatch(addEvent({...response.data, ...inputData, client: {id: inputData.client, text: inputData.selected_client_title}}, scheduleRef));
+                    dispatch(addEvent({...response.data, ...inputData, new_client: false, client_name: "", client_number: "",
+                        client: {id: clientID, text: clientName}}, scheduleRef));
                     close();
                 }
             })
@@ -55,17 +60,30 @@ export default function EventForm({close, event, day, month, year, scheduleRef})
     }
 
     const inputs = [
-        {type: "autoselect", name: "client", placeholder: "Выберите клиента", label: "Клиент", api: apiAutoCompleteClient, width: "200px", selected: event.client},
+        {type: "checkbox", name: "new_client", label: "Новый клиент"},
+    ]
+
+    if (inputData["new_client"]) {
+        inputs.push(
+            {type: "text", name: "client_name", label: "Имя клиента", required: true},
+            {type: "tel", name: "client_number", label: "Тел. клиента"}
+        )
+    } else {
+        inputs.push(
+            {type: "autoselect", name: "client", placeholder: "Выберите клиента", label: "Клиент", api: apiAutoCompleteClient, width: "200px", selected: event.client},
+        )
+    }
+
+    inputs.push(
         {type: "date", name: "date", label: "Дата", required: true},
         {type: "time", name: "start_time", label: "Начало", required: true},
         {type: "time", name: "end_time", label: "Конец", required: true},
         {type: "textarea", name: "description", label: "Комментарий"},
         {type: "checkbox", name: "active", label: "Активна"},
-        {type: "checkbox", name: "constant", label: "Постоянна"},
+        {type: "checkbox", name: "constant", label: "Постоянна"}
+    )
 
-    ]
-
-    const gridTemplateColumns = "100px 200px";
+    const gridTemplateColumns = "120px 200px";
 
     return (
         <div className="wrapper" onClick={e => {if (e.target.className === "wrapper") close()}}>
@@ -75,10 +93,10 @@ export default function EventForm({close, event, day, month, year, scheduleRef})
                 </div>
                 <div>
                     <h2>{event.new ? "Добавить сеанс" : "Изменить сеанс"}</h2>
-                    <a href="/admin/leads/client/add/" target="_blank" style={{fontSize: "14px", color: "blueviolet"}}>Добавиь клиента</a>
+                    {/*<a href="/admin/leads/client/add/" target="_blank" style={{fontSize: "14px", color: "blueviolet"}}>Добавиь клиента</a>*/}
                 </div>
                 {inputs.map((input, idx) => (
-                    <Input options={input} gridTemplate={gridTemplateColumns} value={inputData[input.name]} key={idx} stateHandler={setData} errors={errors[input.name]}/>
+                    <Input options={input} gridTemplate={gridTemplateColumns} value={inputData[input.name]} key={input.name} stateHandler={setData} errors={errors[input.name]}/>
                 ))}
 
                 <div className="bottom-control">
