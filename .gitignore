@@ -9,7 +9,6 @@ massage/gunicorn_config.py
 massage/client_front/.idea/*
 massage/client_schedule_front/.idea/*
 massage/manage_front/.idea/*
-massage/*/migrations/*
 massage/*/node_modules/*
 massage/*/__pycache__/*
 massage/massage/local_settings.py
