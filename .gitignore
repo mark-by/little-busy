@@ -17,4 +17,5 @@ massage/static/admin/*
 massage/static/client_front/*
 massage/static/froala_editor/*
 massage/static/rest_framework/*
-
+massage/static/manage_front
+massage/static/client_schedule_front
