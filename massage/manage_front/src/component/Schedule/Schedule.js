@@ -113,7 +113,13 @@ export default function Schedule() {
                        events = events.concat(schedule[currYear][currMonth][day]);
                 }
                 if (schedule.constant[currWeekday]) {
-                    events = events.concat(schedule.constant[currWeekday]);
+                    const constEventsForDay = schedule.constant[currWeekday].filter(item => {
+                        let beginning = !item['beginning'] | (new Date(item['beginning']) <= new Date(currYear, currMonth-1, day));
+                        let finish = !item['finish'] | (new Date(item['finish']) >= new Date(currYear, currMonth-1, day));
+
+                        return beginning && finish;
+                    })
+                    events = events.concat(constEventsForDay);
                 }
                 return (
                     <>

@@ -100,6 +100,8 @@ class MassageSession(models.Model):
     description = models.TextField(blank=True, null=True, verbose_name="Комментарий")
     active = models.BooleanField(default=True, verbose_name="Действительна")
     constant = models.BooleanField(default=False, verbose_name="Постоянна")
+    beginning = models.DateField(verbose_name="Когда начинается курс", null=True, blank=True)
+    finish = models.DateField(verbose_name="Когда заканчивается курс", null=True, blank=True)
 
     def __str__(self):
         return f"Сеанс c {self.client}"

@@ -83,6 +83,14 @@ export default function EventForm({close, event, day, month, year, scheduleRef})
         {type: "checkbox", name: "constant", label: "Постоянна"}
     )
 
+    if (inputData["constant"]) {
+        inputs.push(
+            {type: "date", name: "beginning", label: "Начиная с"},
+            {type: "date", name: "finish", label: "Заканчивая"},
+        )
+    }
+
+
     const gridTemplateColumns = "120px 200px";
 
     return (
@@ -93,7 +101,7 @@ export default function EventForm({close, event, day, month, year, scheduleRef})
                 </div>
                 <div>
                     <h2>{event.new ? "Добавить сеанс" : "Изменить сеанс"}</h2>
-                    {/*<a href="/admin/leads/client/add/" target="_blank" style={{fontSize: "14px", color: "blueviolet"}}>Добавиь клиента</a>*/}
+                    {!event.new && event.client ? <a href={`/admin/leads/client/${event.client.id}/change/`} target="_blank" style={{fontSize: "14px", color: "blueviolet"}}>Подробнее о клиенте</a> : ""}
                 </div>
                 {inputs.map((input, idx) => (
                     <Input options={input} gridTemplate={gridTemplateColumns} value={inputData[input.name]} key={input.name} stateHandler={setData} errors={errors[input.name]}/>

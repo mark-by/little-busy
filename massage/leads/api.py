@@ -1,3 +1,5 @@
+from calendar import monthrange
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -122,8 +124,18 @@ def __get_events_for_month(request, admin=True):
         if admin:
             serializer = EventSerializer
             events = MassageSession.objects.filter(
-                (Q(start_time__year=year) & Q(start_time__month=month) & Q(start_time__gte=now_init)) | Q(
-                    constant=True))
+                Q(start_time__year=year, start_time__month=month, start_time__gte=now_init, constant=False) |
+                (
+                    Q(constant=True)
+                    & (
+                            Q(beginning__year__lte=year, beginning__month__lte=month) |
+                            Q(beginning__isnull=True)
+                    ) & (
+                            Q(finish__year__gte=year, finish__month__gte=month) |
+                            Q(finish__isnull=True)
+                    )
+                )
+            )
         else:
             serializer = EventClientSerializer
             token = request.GET['token']
@@ -133,8 +145,16 @@ def __get_events_for_month(request, admin=True):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             context['client'] = client
             events = MassageSession.objects.filter(
-                ((Q(start_time__year=year) & Q(start_time__month=month) & Q(start_time__gte=now_init)) | Q(constant=True))
-                    & (Q(active=True) | Q(client=client)))
+                (Q(start_time__year=year, start_time__month=month, start_time__gte=now_init, constant=False) | (
+                    Q(constant=True)
+                    & (
+                            Q(beginning__year__lte=year, beginning__month__lte=month) |
+                            Q(beginning__isnull=True)
+                    ) & (
+                            Q(finish__year__gte=year, finish__month__gte=month) |
+                            Q(finish__isnull=True)
+                    )
+                )) & (Q(active=True) | Q(client=client)))
         events_by_day = {}
         for event in events:
             date = event.start_time.strftime("%d.%m.%Y")
@@ -194,6 +214,8 @@ def __save_event(request, new):
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
     data['start_time'] = f"{data['date']} {data['start_time']}"
+    if 'constant' in data.keys() and data['constant'] and ('beginning' not in data.keys() or not data['beginning']):
+        data['beginning'] = data['date']
     if new:
         serialzer = ValidateEventSerializer(data=data)
     else:

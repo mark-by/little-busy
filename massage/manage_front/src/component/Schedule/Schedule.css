@@ -76,6 +76,7 @@
     padding: 1px;
     border-radius: 3px;
     z-index: 10;
+    opacity: 1;
 }
 
 .schedule__event_start-time {
@@ -217,5 +218,15 @@ input[type=submit] {
 @media screen and (max-width: 770px)  {
     .schedule__time {
         font-size: 10px;
+    }
+
+    .schedule__event_client-name {
+        font-size: 14px;
+    }
+}
+
+@media screen and (max-width: 577px)  {
+    .schedule__event_client-name {
+        font-size: 12px;
     }
 }

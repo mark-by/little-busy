@@ -24,8 +24,7 @@ function ScheduleDay({weekday, year, month, day, times, events}, ref) {
                         return (
                             <div className="schedule__event" key={idx} onClick={() => select(event)} style={style}>
                                 <div className="schedule__event_start-time">{event.start_time}</div>
-                                {event.client && <a onClick={e => e.stopPropagation()} className="schedule__event_client-name"
-                                                    href={"/admin/leads/client/" + event.client.id + "/change/"} target="_blank">{event.client.text}</a>}
+                                {event.client && <p className="schedule__event_client-name">{event.client.text}</p>}
                                 <div className="schedule__event_end-time">{event.end_time}</div>
                             </div>
                         )
