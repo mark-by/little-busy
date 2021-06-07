@@ -114,8 +114,8 @@ export default function Schedule() {
                 }
                 if (schedule.constant[currWeekday]) {
                     const constEventsForDay = schedule.constant[currWeekday].filter(item => {
-                        let beginning = !item['beginning'] | (new Date(item['beginning']) <= new Date(currYear, currMonth-1, day));
-                        let finish = !item['finish'] | (new Date(item['finish']) >= new Date(currYear, currMonth-1, day));
+                        let beginning = !item['beginning'] | (new Date(item['beginning']) <= new Date(currYear, currMonth-1, day + 1));
+                        let finish = !item['finish'] | (new Date(item['finish']) >= new Date(currYear, currMonth-1, day + 1));
 
                         return beginning && finish;
                     })
