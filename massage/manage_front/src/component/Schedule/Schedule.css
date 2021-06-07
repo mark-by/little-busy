@@ -26,6 +26,17 @@
     z-index: 100;
 }
 
+.schedule__event_client-name {
+    transform-origin: 0 100%;
+    transform: rotate(-90deg) translate(0, 50%);
+    width: 130px;
+    color: #a5292a;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    text-align: center;
+}
+
 .schedule__row {
     display: flex;
     width: 100%;
