@@ -72,20 +72,24 @@
 .schedule__event_end-time {
     position: absolute;
     font-size: 12px;
-    background:white;
+    background: white;
+    padding: 1px;
+    border-radius: 3px;
     z-index: 10;
 }
 
 .schedule__event_start-time {
-    top: 0;
-    left: 0;
-    transform: rotate(-90deg) translateY(-130%);
+    top: 3px;
+    left: 3px;
+    transform-origin: 0 0;
+    transform: rotate(-90deg) translateX(-100%);
 }
 
 .schedule__event_end-time {
-    bottom: 0;
-    right: 0;
-    transform: rotate(-90deg) translateY(130%);
+    bottom: 3px;
+    right: 3px;
+    transform-origin: 100% 100%;
+    transform: rotate(-90deg) translateX(100%);
 }
 
 .schedule__weekday {
